@@ -1,4 +1,4 @@
-# Movie & Web Series Tracker
+# Your ultimate companion for tracking movies and web series.
 
 ## Overview
 
