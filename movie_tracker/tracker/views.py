@@ -7,34 +7,44 @@ from django.conf import settings
 from .models import Movie, WebSeries
 import datetime
 import os
+import logging
+from googleapiclient.discovery import build # this should not require to be installed, but make sure it is.
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 def home(request):
     """
     Displays the search form and handles the search logic.
     """
+    tmdb_api_key = settings.TMDB_API_KEY
+    omdb_api_key = settings.OMDB_API_KEY
+    youtube_api_key = settings.YOUTUBE_API_KEY
+
     if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
             search_term = form.cleaned_data['search_term']
-            movie_data = search_movie_data(search_term)  # Attempt to search Movie
-            series_data = search_series_data(search_term)  # Attempt to search Series
+            logger.info(f"Searching for: {search_term}")
+            movie_data = search_movie_data(search_term, tmdb_api_key, omdb_api_key, youtube_api_key)
+            series_data = search_series_data(search_term, tmdb_api_key, youtube_api_key)
 
             if movie_data:
+                logger.info(f"Movie found: {movie_data['title']}")
                 return render(request, 'tracker/display.html', {'form': form, 'movie': movie_data, 'is_series': False, 'search_term': search_term})
             elif series_data:
+                logger.info(f"Series found: {series_data['title']}")
                 return render(request, 'tracker/display.html', {'form': form, 'series': series_data, 'is_series': True, 'search_term': search_term})
             else:
+                logger.warning(f"Movie/Series not found for: {search_term}")
                 return render(request, 'tracker/display.html', {'form': form, 'error': 'Movie/Series not found', 'search_term': search_term})
 
     else:
         form = SearchForm()
     return render(request, 'tracker/display.html', {'form': form})
 
-def search_movie_data(search_term):
+def search_movie_data(search_term, tmdb_api_key, omdb_api_key, youtube_api_key):
     """Fetches movie data from TMDb and OMDb."""
-    tmdb_api_key = settings.TMDB_API_KEY
-    omdb_api_key = settings.OMDB_API_KEY
-    youtube_api_key = settings.YOUTUBE_API_KEY
 
     tmdb_search_url = f"https://api.themoviedb.org/3/search/movie?api_key={tmdb_api_key}&language=en-US&query={search_term}&page=1&include_adult=false"
 
@@ -62,7 +72,7 @@ def search_movie_data(search_term):
                         'genre': omdb_data.get('Genre'),
                         'language': movie_data['original_language'],
                         'rating': float(omdb_data.get('imdbRating', 0.0)) if omdb_data.get('imdbRating', 'N/A') != 'N/A' else None,
-                        'release_date': omdb_data.get('Released'),
+                        'release_date': movie_data['overview'],
                         'overview': movie_data['overview'],
                         'is_series': False,
                         'image_url': get_movie_images(movie_data['id'])
@@ -77,22 +87,9 @@ def search_movie_data(search_term):
                         if youtube_data['items']:
                             trailer_id = youtube_data['items'][0]['id']['videoId']
                             combined_data['trailer_id'] = trailer_id
-                        # Fetch YouTube video details
-                            youtube_video_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id={trailer_id}&key={youtube_api_key}"
-                            try:
-                                youtube_video_response = requests.get(youtube_video_url)
-                                youtube_video_response.raise_for_status()
-                                youtube_video_data = youtube_video_response.json()
 
-                                if youtube_video_data['items']:
-                                    video_details = youtube_video_data['items'][0]
-                                    combined_data['comment_count'] = video_details['statistics'].get('commentCount')
-                                    combined_data['like_count'] = video_details['statistics'].get('likeCount')
-                                    combined_data['upload_date'] = video_details['snippet'].get('publishedAt') #The date
-                            except requests.exceptions.RequestException as e:
-                                print(f"YouTube video details request failed: {e}")
-                            except Exception as e:
-                                print(f"An unexpected error occurred during YouTube video details API call: {e}")
+                            # Fetch YouTube video details
+                            combined_data['comment_count'], combined_data['like_count'], combined_data['upload_date'] = get_video_statistics(trailer_id, youtube_api_key)
 
                     except requests.exceptions.RequestException as e:
                         print(f"YouTube API request failed: {e}")
@@ -101,13 +98,10 @@ def search_movie_data(search_term):
 
                     return combined_data
                 else:
-                    print(f"OMDb API request failed")
+                    print(f"OMDb API request failed: {omdb_data.get('Error')}")
                     return None
             except requests.exceptions.RequestException as e:
                 print(f"OMDb API request failed: {e}")
-                return None
-            except Exception as e:
-                print(f"OMDb An unexpected error occurred during OMDb API call: {e}")
                 return None
 
         else:
@@ -135,49 +129,20 @@ def search_series_data(search_term):
         tmdb_data = tmdb_response.json()
 
         if tmdb_data['results']:
+            # Take the first result
             series_data = tmdb_data['results'][0]
 
-            tv_id = series_data['id']
-            seasons = []
+            # Fetch tvshow images
+            image_url = get_tvshow_images(series_data['id'])
 
-            # Iterate through season numbers and call API for each season
-            for season_number in range(1, 20):  # Limit to 5 seasons for demonstration
-                try:
-                    season_url = f"https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}?api_key={tmdb_api_key}&language=en-US"
-                    season_response = requests.get(season_url)
-                    season_response.raise_for_status()
-                    season_data = season_response.json()
-
-                    episodes = []
-
-                    if season_data.get('episodes'):
-                        for episode in season_data['episodes']:
-                            episodes.append({
-                                'episode_number': episode['episode_number'],
-                                'episode_name': episode['name'],
-                                'episode_rating': episode.get('vote_average', 'N/A'),  # rating
-                            })
-
-                    seasons.append({
-                        'season_number': season_data['season_number'],
-                        'episodes': episodes
-                    })
-
-                except requests.exceptions.RequestException as e:
-                    print(f"TMDb Season API request failed for season {season_number}: {e}")
-                    break
-
+            # Combine data from TMDb
             combined_data = {
                 'title': series_data['name'],
                 'tmdb_id': series_data['id'],
-                'genre': 'N/A',  # You would fetch genre data from TMDb using the series ID
                 'language': series_data['original_language'],
-                'rating': None,  # No rating from this
-                'first_air_date': None,  # You would fetch this data from TMDb using the series ID
                 'overview': series_data['overview'],
-                'seasons': seasons,
-                'is_series': True,  # Boolean value to say its a series or Movie
-                'image_url': get_tvshow_images(tv_id)
+                'is_series': True,
+                'image_url': image_url
             }
 
             youtube_search_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={series_data['name']} trailer&key={youtube_api_key}&maxResults=1"
@@ -189,23 +154,8 @@ def search_series_data(search_term):
                 if youtube_data['items']:
                     trailer_id = youtube_data['items'][0]['id']['videoId']
                     combined_data['trailer_id'] = trailer_id
-
-                    # Fetch YouTube video details
-                    youtube_video_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id={trailer_id}&key={youtube_api_key}"
-                    try:
-                        youtube_video_response = requests.get(youtube_video_url)
-                        youtube_video_response.raise_for_status()
-                        youtube_video_data = youtube_video_response.json()
-
-                        if youtube_video_data['items']:
-                            video_details = youtube_video_data['items'][0]
-                            combined_data['comment_count'] = video_details['statistics'].get('commentCount')
-                            combined_data['like_count'] = video_details['statistics'].get('likeCount')
-                            combined_data['upload_date'] = video_details['snippet'].get('publishedAt') #The date
-                    except requests.exceptions.RequestException as e:
-                        print(f"YouTube video details request failed: {e}")
-                    except Exception as e:
-                        print(f"An unexpected error occurred during YouTube video details API call: {e}")
+                # Fetch YouTube video details
+                combined_data['comment_count'], combined_data['like_count'], combined_data['upload_date'] = get_video_statistics(trailer_id, youtube_api_key)
 
             except requests.exceptions.RequestException as e:
                 print(f"YouTube API request failed: {e}")
@@ -219,6 +169,10 @@ def search_series_data(search_term):
 
     except requests.exceptions.RequestException as e:
         print(f"TMDb Series API request failed: {e}")
+        return None
+
+    except Exception as e:
+        print(f"An unexpected error occurred during TMDb API call: {e}")
         return None
 
 def get_movie_images(movie_id):
@@ -286,25 +240,96 @@ def export_movie_csv(request):
             writer = csv.writer(response)
 
             # Write general series information
-            writer.writerow(['Title', 'Language', 'Overview', 'Likes', 'Comments', 'Upload Date', 'Season Number', 'Episode Number', 'Episode Name', 'Episode Rating'])
-            for season in series_data['seasons']:
-                for episode in season['episodes']:
-                     writer.writerow([
-                         series_data['title'],
-                         series_data['language'],
-                         series_data['overview'],
-                         series_data.get('like_count', ''),
-                         series_data.get('comment_count', ''),
-                         series_data.get('upload_date', ''),
-                         season['season_number'],
-                         episode['episode_number'],
-                         episode['episode_name'],
-                         episode['episode_rating'],
-                ])
+            writer.writerow(['Title', 'Language', 'Overview', 'Likes', 'Comments', 'Upload Date'])
+            writer.writerow([
+                series_data['title'],
+                series_data['language'],
+                series_data['overview'],
+                series_data.get('like_count', ''),
+                series_data.get('comment_count', ''),
+                series_data.get('upload_date', ''),
+            ])
             return response
-
         else:
             return HttpResponse("Movie/Series data not found.")
 
     else:
         return HttpResponse("Invalid request.")
+def get_video_id(video_url):
+    """Extracts the Video ID from a YouTube URL"""
+    if "watch?v=" in video_url:
+        return video_url.split("watch?v=")[-1].split("&")[0]
+    elif "youtu.be/" in video_url:
+        return video_url.split("youtu.be/")[-1].split("?")[0]
+    return None
+
+def get_video_statistics(video_id, api_key):
+    """Fetches total likes and comments"""
+    try:
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        request = youtube.videos().list(
+            part="statistics",
+            id=video_id
+        )
+        response = request.execute()
+
+        if "items" in response and response["items"]:
+            stats = response["items"][0]["statistics"]
+            return int(stats.get("likeCount", 0)), int(stats.get("commentCount", 0)), response["items"][0]['snippet']['publishedAt']
+        else:
+            print("No video found or no statistics available.")
+            return 0, 0, None
+
+    except Exception as e:
+        print(f"Error fetching YouTube data: {e}")
+        return 0, 0, None  # Return 0 or handle the error appropriately
+
+def estimate_likes(video_id, api_key, start_date, end_date):
+    """Estimates likes gained in a specific date range"""
+    total_likes, _ = get_video_statistics(video_id, api_key)
+
+    # Assuming the video gains likes linearly over time
+    upload_date = datetime.date.today() - datetime.timedelta(days=365)  # Example assumption: video is 1 year old
+    days_since_upload = (datetime.date.today() - upload_date).days
+    total_days_selected = (end_date - start_date).days
+
+    if days_since_upload > 0:
+        estimated_likes = int((total_likes / days_since_upload) * total_days_selected)
+    else:
+        estimated_likes = 0
+    return estimated_likes
+
+def query_like_count(request):
+    """
+    Allows querying the like count for a specific date.
+    """
+
+    if request.method == 'GET':
+        form = DateForm(request.GET)
+        if form.is_valid():
+            selected_date = form.cleaned_data['date']
+            try:
+                # Retrieve the like count for the specified date.
+                # You'll need to adjust the logic here based on how you're storing the data
+
+                like_count_entry = VideoLikeCount.objects.filter(timestamp__date=selected_date).first() #First Entry
+                if like_count_entry:
+                    like_count = like_count_entry.like_count
+                else:
+                   like_count = "No data found for this date."
+            except VideoLikeCount.DoesNotExist:
+                like_count = "No data found for this date."
+            except Exception as e:
+                like_count = f"Error retrieving data: {e}"
+        else:
+            like_count = None
+            selected_date = None
+    else:
+        form = DateForm()
+
+    context = {
+        'form': form,
+        'like_count': like_count,
+        'selected_date': selected_date,
+    }
+    return render(request, 'tracker/display.html', context)

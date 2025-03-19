@@ -6,66 +6,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie/Series Search</title>
     <style>
-        /* Styles for Search Bar */
-        .body {
-            background-image: url("https://www.notebookcheck.net/fileadmin/Notebooks/News/_nc3/netflixteaser.png");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            min-height: 100vh;
+        /* General Styles */
+        body {
+            font-family: monospace;
+            background-color: #1e1e1e; /* Dark background */
+            color: #d4d4d4; /* Light text */
+            margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            color: white;
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Website Title */
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; /* Green glow */
+            color: #90ee90; /* Light Green color */
+            text-align: center;
+        }
+        /* Add the loading letter style*/
+        .loading-text {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; /* Green glow */
+            color: #90ee90; /* Light Green color */
             text-align: center;
         }
 
-        .data-background {
-            background-color: rgba(0, 0, 0, 0.6);
+        .content-container {
+            width: 90%;
+            max-width: 900px;
             padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: left; /* Align text to the left */
+            border-radius: 8px;
+            margin: 20px auto;
+            background-color: #252526; /* Slightly lighter background */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
-        .content-container {
-            width: 80%;
-            max-width: 1200px;
-            box-sizing: border-box;
-            padding: 15px;
+        /* Search Section */
+        form {
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        * {
-            box-sizing: border-box;
+            margin-bottom: 20px;
+            width: 100%; /* Full width for better responsiveness */
         }
 
         .input {
             background-color: #010201;
-            border: none;
-            width: 301px;
-            height: 56px;
-            border-radius: 10px;
-            color: white;
-            padding-inline: 59px;
-            font-size: 18px;
-            white-space: nowrap; /* Prevent wrapping */
-            margin-bottom: 10px; /* Space under the search bar */
+            border: 2px solid #6e1b60; /* Darker border */
+            color: #fff;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            width: 100%; /* Full width */
+            box-sizing: border-box; /* Includes padding and border in the width */
         }
 
         .input::placeholder {
-            color: #c0b9c0;
+            color: #777; /* Placeholder text color */
         }
 
         .input:focus {
-            outline: none;
+            border-color: #b354a0;
+            outline: none; /* Remove the default focus outline */
         }
 
+        button[type="submit"] {
+            background-color: #4a307c;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #b354a0; /* Darker purple on hover */
+        }
+
+        /* Data Background */
+        .data-background {
+            background-color: #333; /* Darker background for data */
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            overflow-x: auto; /* Add horizontal scroll if content overflows */
+        }
+        h2 {
+            color: #d4d4d4;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #b354a0; /* purple glow*/
+        }
+        p, ul, li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        /* Images */
         .images-container {
             display: flex;
             flex-wrap: wrap;
@@ -74,16 +119,26 @@
         }
 
         .images-container img {
-            width: 150px;
+            width: 200px; /* Increased image size */
             height: auto;
-            margin: 5px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin: 8px;
+            border: 2px solid #555; /* Slightly thicker border */
+            border-radius: 8px;
             object-fit: cover;
         }
 
+        /* Trailer */
+        iframe {
+            margin-top: 15px;
+            border: 2px solid #555; /* Thick border */
+            border-radius: 8px;
+            display: block; /* Make it a block element for centering */
+            margin-left: auto;
+            margin-right: auto; /* Center the iframe */
+        }
+        /* uiverse Button for CSV Export */
         .uiverse {
-            --duration: 7s;
+           --duration: 7s;
             --easing: linear;
             --c-color-1: rgba(255, 163, 26, 0.7);
             --c-color-2: #1a23ff;
@@ -107,13 +162,15 @@
             margin: 0;
             text-align: center;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
             letter-spacing: 0.02em;
             line-height: 1.5;
             color: var(--c-color);
             background: radial-gradient(circle, var(--c-radial-inner), var(--c-radial-outer) 80%);
             box-shadow: 0 0 14px var(--c-shadow);
             margin-top: 10px;
+            margin-bottom: 15px; /* Spacing below button */
+            width: 200px; /* Fixed width for the button */
         }
 
         .uiverse:before {
@@ -151,10 +208,14 @@
 
 <body class="body">
     <div class="content-container">
+        <!-- Website Name and Description -->
+        <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&color=00F706&width=435&lines=Web-Digger" alt="Typing SVG" class="loading-text"/></a>
+
+        <!-- Search Form -->
         <form method="post">
             {% csrf_token %}
             <input type="text" name="{{ form.search_term.name }}" id="{{ form.search_term.id_for_label }}" class="input" placeholder="{{ form.search_term.label }}" value="{% if search_term %}{{ search_term }}{% endif %}" onkeydown="if (event.keyCode == 13) { this.form.submit(); return false; }">
-            <button type="submit" style="display:none;">Search</button>
+            <button type="submit">Search</button>
         </form>
 
         {% if movie %}

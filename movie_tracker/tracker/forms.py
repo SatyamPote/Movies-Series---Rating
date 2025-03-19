@@ -16,3 +16,17 @@ class SeriesFilterForm(forms.Form):
 
 class SearchForm(forms.Form):
     search_term = forms.CharField(label="Movie or Series Title", widget=forms.Textarea(attrs={'rows': 1, 'cols': 40}))  # Textarea for input
+
+
+    from django import forms
+
+class DateForm(forms.Form):
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Date (YYYY-MM-DD)")
+
+from django import forms
+
+class SearchForm(forms.Form):
+    search_term = forms.CharField(label="Movie or Series Title", widget=forms.Textarea(attrs={'rows': 1, 'cols': 40}))  # Textarea for input
+
+class DateForm(forms.Form):
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Date (YYYY-MM-DD)")

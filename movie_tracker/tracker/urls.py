@@ -3,5 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('export/', views.export_movie_csv, name='export_movie_csv'),
+    path('query/', views.query_like_count, name='query_like_count'), # added the path
+    path('export/', views.export_movie_csv, name='export_movie_csv'),  # Keep this
 ]

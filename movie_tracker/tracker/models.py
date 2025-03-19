@@ -33,3 +33,13 @@ class WebSeries(models.Model):
 
     def __str__(self):
         return self.title
+    
+from django.db import models
+
+class VideoLikeCount(models.Model):
+    video_id = models.CharField(max_length=20)  # YouTube video ID
+    like_count = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True) # auto now add the date and the time
+
+    def __str__(self):
+        return f"Likes for {self.video_id} on {self.timestamp.date()}: {self.like_count}"
