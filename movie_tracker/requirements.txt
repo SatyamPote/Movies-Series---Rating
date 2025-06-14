@@ -1,5 +1,0 @@
-Django>=4.2
-requests
-celery[redis]
-django-celery-beat
-python-dotenv
