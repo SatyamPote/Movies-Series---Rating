@@ -21,10 +21,24 @@
             overflow-x: hidden;
         }
 
-        /* Glowing Headings */
+        /* --- Global Styles --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            margin: 3rem 0;
+            border-radius: 1px;
+        }
+
+        /* --- Typography & Headings --- */
         .glow-heading {
             text-align: center;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem); /* Responsive font size */
             font-weight: 700;
             background: linear-gradient(45deg, #00d4ff, #ff00ff, #00ff88);
             background-size: 200% 200%;
@@ -37,7 +51,7 @@
         }
 
         .section-heading {
-            font-size: 2.2rem;
+            font-size: clamp(1.8rem, 4vw, 2.2rem); /* Responsive font size */
             text-align: center;
             color: #00d4ff;
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
@@ -52,24 +66,14 @@
             margin-bottom: 1rem;
             text-align: center;
         }
+        
+        /* --- Animations --- */
+        @keyframes glowAnimation { 0% { background-position: 0% 50%; filter: brightness(1); } 100% { background-position: 100% 50%; filter: brightness(1.3); } }
+        @keyframes pulseGlow { 0% { text-shadow: 0 0 15px rgba(0, 212, 255, 0.8); } 100% { text-shadow: 0 0 25px rgba(0, 212, 255, 1), 0 0 35px rgba(0, 212, 255, 0.7); } }
+        @keyframes cardGlow { 0% { box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); } 100% { box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6), 0 0 30px rgba(255, 0, 255, 0.3); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes glowAnimation {
-            0% { background-position: 0% 50%; filter: brightness(1); }
-            100% { background-position: 100% 50%; filter: brightness(1.3); }
-        }
-
-        @keyframes pulseGlow {
-            0% { text-shadow: 0 0 15px rgba(0, 212, 255, 0.8); }
-            100% { text-shadow: 0 0 25px rgba(0, 212, 255, 1), 0 0 35px rgba(0, 212, 255, 0.7); }
-        }
-
-        @keyframes cardGlow {
-            0% { box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); }
-            100% { box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6), 0 0 30px rgba(255, 0, 255, 0.3); }
-        }
-
-        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-
+        /* --- Form & Inputs --- */
         .form-container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -81,28 +85,12 @@
             animation: cardGlow 3s ease-in-out infinite alternate;
         }
 
-        .form-group { margin-bottom: 1.5rem; }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #00ff88;
-            font-weight: 600;
-            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
-        }
-
-        /* NEW STYLE FOR DYNAMIC INPUTS */
-        .input-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            flex-grow: 1; /* Make input take available space */
+        .form-group { margin-bottom: 1.5rem; text-align: center; }
+        label { display: block; margin-bottom: 0.5rem; color: #00ff88; font-weight: 600; text-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+        .input-group { display: flex; align-items: center; margin: 0 auto 0.5rem auto; gap: 10px; max-width: 500px; }
+        input[type="text"], select {
+            flex-grow: 1;
             width: 100%;
-            max-width: 500px;
             padding: 1rem;
             border: 2px solid rgba(0, 212, 255, 0.3);
             border-radius: 10px;
@@ -112,64 +100,48 @@
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
         }
-
-        select {
-            width: 100%;
-            max-width: 500px;
-            padding: 1rem;
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            font-size: 1rem;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus, select:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
-        }
-
+        input[type="text"]:focus, select:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.5); }
         input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.6); }
 
+        /* --- Buttons --- */
         .buttons-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
         .btn { padding: 12px 24px; border: none; border-radius: 25px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center; }
-        .btn-add { background: #00ff88; color: #1a1a2e; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; }
+        .btn-add { background: #00ff88; color: #1a1a2e; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; flex-shrink: 0; }
         .btn-primary { background: linear-gradient(45deg, #00d4ff, #0099cc); color: white; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6); }
         .btn-secondary { background: linear-gradient(45deg, #00ff88, #00cc6a); color: white; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4); }
         .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 255, 136, 0.6); }
         
+        /* --- Card Grid & Cards --- */
         .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin: 2rem 0; }
-        .movie-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 1.5rem; transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); animation: cardGlow 4s ease-in-out infinite alternate; }
+        .movie-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 1.5rem; transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); animation: cardGlow 4s ease-in-out infinite alternate; display: flex; flex-direction: column; }
         .movie-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4); }
         .poster-container { text-align: center; margin-bottom: 1rem; }
         .poster { max-width: 200px; height: 300px; object-fit: cover; border-radius: 15px; border: 2px solid rgba(255, 0, 255, 0.3); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
-        .movie-info { text-align: left; }
+        .movie-info { text-align: left; flex-grow: 1; display: flex; flex-direction: column; }
         .overview { font-style: italic; color: rgba(255, 255, 255, 0.8); border-left: 3px solid #00ff88; padding-left: 1rem; margin: 1rem 0; line-height: 1.6; }
         .rating-info { background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 10px; margin: 1rem 0; }
-        .youtube-container { margin: 1rem 0; text-align: center; }
-        .youtube-container iframe { width: 100%; max-width: 500px; height: 280px; border-radius: 10px; border: 2px solid rgba(0, 212, 255, 0.3); }
-        .stats { display: flex; justify-content: space-around; margin-top: 1rem; padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        .youtube-container { margin-top: auto; text-align: center; } /* Pushes to bottom */
+        .youtube-container iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; border-radius: 10px; border: 2px solid rgba(0, 212, 255, 0.3); }
+        .stats { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
         .stat-item { text-align: center; }
         .stat-number { font-size: 1.2rem; font-weight: bold; color: #00d4ff; }
         
+        /* --- Graphs, Verdict, Analysis Sections --- */
         .graphs-container, .verdict-container, .analysis-section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 2rem; margin: 2rem 0; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         .graph-item { margin: 2rem 0; text-align: center; }
         .graph-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-        .graph-item img { max-width: 100%; border-radius: 15px; border: 2px solid rgba(0, 212, 255, 0.3); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); }
+        .graph-item img { max-width: 100%; height: auto; border-radius: 15px; border: 2px solid rgba(0, 212, 255, 0.3); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); }
         .insight { font-style: italic; color: rgba(255, 255, 255, 0.8); margin: 1rem 0; padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; border-left: 3px solid #ff00ff; }
         
-        .verdict-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 2rem 0; }
+        .verdict-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin: 2rem 0; }
         .verdict { padding: 1.5rem; border-radius: 15px; text-align: center; transition: all 0.3s ease; }
         .verdict.best { background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2)); border: 2px solid rgba(0, 255, 136, 0.5); box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3); }
         .verdict.flop { background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(255, 100, 100, 0.2)); border: 2px solid rgba(255, 0, 255, 0.5); box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3); }
         .verdict:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4); }
         
         .table-container { overflow-x: auto; margin: 2rem 0; }
-        table { width: 100%; border-collapse: collapse; background: rgba(0, 0, 0, 0.3); border-radius: 10px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; background: rgba(0, 0, 0, 0.3); border-radius: 10px; overflow: hidden; min-width: 500px; /* Ensure table has min-width */ }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
         th { background: rgba(0, 212, 255, 0.3); color: #ffffff; font-weight: 600; }
         tr:hover { background: rgba(0, 212, 255, 0.1); }
@@ -179,16 +151,35 @@
         .insights-list { list-style: none; padding: 0; }
         .insights-list li { padding: 0.8rem; margin: 0.5rem 0; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid #ff00ff; transition: all 0.3s ease; }
         .insights-list li:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(10px); }
+
+        /* --- Footer --- */
+        .site-footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            background: rgba(0,0,0,0.2);
+            color: rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .site-footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .site-footer a:hover {
+            color: #00ff88;
+        }
         
-        @media (max-width: 768px) { .container { padding: 1rem; } .glow-heading { font-size: 2rem; } .section-heading { font-size: 1.8rem; } .card-grid, .verdict-box { grid-template-columns: 1fr; } .buttons-group, .graph-header { flex-direction: column; align-items: center; text-align: center; } input[type="text"], select { max-width: 100%; } }
-        @media (max-width: 480px) { .glow-heading { font-size: 1.5rem; } .section-heading { font-size: 1.4rem; } .btn { padding: 10px 20px; font-size: 0.9rem; } .movie-card { padding: 1rem; } .poster { max-width: 150px; height: 225px; } }
-        
-        .loading { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 50%; border-top-color: #00d4ff; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .divider { height: 2px; background: linear-gradient(90deg, transparent, #00d4ff, transparent); margin: 3rem 0; border-radius: 1px; }
-        
-        /* Hide text area used for form submission */
+        /* --- Utility & Loading --- */
         #movie_names { display: none; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 50%; border-top-color: #00d4ff; animation: spin 1s ease-in-out infinite; }
+        
+        /* --- Responsive Media Queries --- */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .graph-header, .buttons-group { flex-direction: column; align-items: stretch; text-align: center; }
+            .input-group { max-width: none; }
+        }
     </style>
 </head>
 <body>
@@ -203,12 +194,11 @@
                     <div id="movie-inputs-container">
                         <div class="input-group">
                             <input type="text" name="movie_name_input" class="movie-input" placeholder="e.g., The Matrix">
+                            <button type="button" id="add-movie-btn" class="btn btn-add">+</button>
                         </div>
                     </div>
-                    <button type="button" id="add-movie-btn" class="btn btn-add" style="margin-top: 10px;">+</button>
                 </div>
                 
-                <!-- This textarea is hidden but will be used to submit the combined data -->
                 <textarea id="movie_names" name="movie_names"></textarea>
 
                 <div class="form-group">
@@ -235,7 +225,6 @@
 
         {% if movies_data %}
         <div class="divider"></div>
-
         <h2 class="section-heading">🎭 Movie Collection</h2>
         <div class="card-grid">
             {% for movie in movies_data %}
@@ -245,7 +234,7 @@
                     {% if movie.poster_path %}
                     <img class="poster" src="{{ movie.poster_path }}" alt="{{ movie.title }} Poster">
                     {% else %}
-                    <img class="poster" src="https://via.placeholder.com/200x300?text={{ movie.title|urlencode }}" alt="No Poster">
+                    <img class="poster" src="https://via.placeholder.com/200x300/1a1a2e/ffffff?text={{ movie.title|urlencode }}" alt="No Poster">
                     {% endif %}
                 </div>
                 <div class="movie-info">
@@ -354,27 +343,41 @@
         {% endif %}
     </div>
 
+    <!-- NEW: Site Footer -->
+    <footer class="site-footer">
+        <p>Developer: Satyam Pote</p>
+        <p>Email: <a href="mailto:satyampote9999@gmail.com">satyampote9999@gmail.com</a></p>
+    </footer>
+
     {{ graphs|json_script:"graphs-data" }}
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- NEW: DYNAMIC MOVIE INPUTS ---
+            // DYNAMIC MOVIE INPUTS
             const addMovieBtn = document.getElementById('add-movie-btn');
             const inputsContainer = document.getElementById('movie-inputs-container');
-            const hiddenTextarea = document.getElementById('movie_names');
 
             addMovieBtn.addEventListener('click', function() {
                 const newInputGroup = document.createElement('div');
                 newInputGroup.className = 'input-group';
-                newInputGroup.innerHTML = '<input type="text" name="movie_name_input" class="movie-input" placeholder="e.g., Inception">';
+                newInputGroup.innerHTML = `
+                    <input type="text" name="movie_name_input" class="movie-input" placeholder="e.g., Inception">
+                    <button type="button" class="btn btn-add remove-btn" style="background: #ff0055;">-</button>
+                `;
                 inputsContainer.appendChild(newInputGroup);
             });
+            
+            inputsContainer.addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-btn')) {
+                    e.target.parentElement.remove();
+                }
+            });
 
-            // --- Form submission handling ---
+            // Form submission handling
             const form = document.getElementById('main-form');
+            const hiddenTextarea = document.getElementById('movie_names');
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    // Combine all movie inputs into the hidden textarea
                     const allInputs = document.querySelectorAll('.movie-input');
                     const movieNames = Array.from(allInputs).map(input => input.value.trim()).filter(value => value);
                     hiddenTextarea.value = movieNames.join('\n');
@@ -387,7 +390,7 @@
                 });
             }
 
-            // --- Download button handling ---
+            // Download button handling
             const downloadBtn = document.getElementById('download-data-btn');
             const formatSelect = document.getElementById('download-format-select');
             if (downloadBtn && formatSelect) {
@@ -399,10 +402,11 @@
                         form.action = "{% url 'download_json' %}";
                     }
                     form.submit();
+                    form.action = ""; // Reset action
                 });
             }
 
-            // --- Graph download functionality ---
+            // Graph download functionality
             try {
                 const graphsData = JSON.parse(document.getElementById('graphs-data').textContent);
                 const graphItems = document.querySelectorAll('.graph-item');
@@ -421,23 +425,20 @@
                         });
                     }
                 });
-            } catch (e) {
-                // graphs-data does not exist on initial load, so we ignore the error
-            }
-            
+            } catch (e) { /* graphs-data does not exist on initial load */ }
         });
 
-        // --- Particle effect (kept from your original design) ---
+        // Particle effect
         function createParticle() {
             const particle = document.createElement('div');
             particle.style.position = 'fixed';
-            particle.style.width = '4px';
-            particle.style.height = '4px';
+            particle.style.width = '3px';
+            particle.style.height = '3px';
             particle.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
             particle.style.borderRadius = '50%';
             particle.style.pointerEvents = 'none';
             particle.style.opacity = '0.7';
-            particle.style.zIndex = '-1'; // Put particles behind content
+            particle.style.zIndex = '-1';
             
             const startX = Math.random() * window.innerWidth;
             const startY = window.innerHeight + 10;
@@ -445,20 +446,18 @@
             particle.style.top = startY + 'px';
             document.body.appendChild(particle);
             
-            const duration = Math.random() * 3000 + 2000;
+            const duration = Math.random() * 4000 + 3000;
             const endY = -10;
             
             particle.animate([
                 { transform: `translateY(0px) translateX(0px)`, opacity: 0.7 },
-                { transform: `translateY(${endY - startY}px) translateX(${(Math.random() - 0.5) * 100}px)`, opacity: 0 }
+                { transform: `translateY(${endY - startY}px) translateX(${(Math.random() - 0.5) * 150}px)`, opacity: 0 }
             ], {
                 duration: duration,
                 easing: 'linear'
-            }).onfinish = () => {
-                particle.remove();
-            };
+            }).onfinish = () => particle.remove();
         }
-        setInterval(createParticle, 300);
+        setInterval(createParticle, 250);
     </script>
 </body>
 </html>
