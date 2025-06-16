@@ -19,9 +19,9 @@ ALLOWED_HOSTS = []
 
 # --- API KEYS ---
 # As requested, storing API keys directly in settings.py
-TMDB_API_KEY = "af6890160c5f9e8673762c9dfb598c6c"
-YOUTUBE_API_KEY = "AIzaSyAxlu80JU7MCxIO1liy4z0fPDz4YnWNBYY"
-OMDB_API_KEY = "b3e8932d"
+TMDB_API_KEY = ""
+YOUTUBE_API_KEY = ""
+OMDB_API_KEY = ""
 # --- END API KEYS ---
 
 
